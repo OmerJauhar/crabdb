@@ -1,5 +1,8 @@
 fn main() {
     println!("Hello, world!");
-    let a = 32  ; 
-    println!("The value of a is {:?}",a);
+    let a = "omer jauhar " ; 
+    let meow = "omer jauahr";
+    let meomeowmeow = "erere" ;
+    let var = 433 ; 
+    
 }

@@ -1,0 +1,8 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./crates/parser/parser/Cargo.toml",
+        "./crates/parser/parser/Cargo.toml"
+    ],
+    "rust-analyzer.showUnlinkedFileNotification": false,
+    "git.ignoreLimitWarning": true
+}

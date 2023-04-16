@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["Direction","Delete (kill) direction"],["WordAction","Word’s case change"]],"struct":[["LineBuffer","Represent the current input (text and cursor position)."]],"trait":[["ChangeListener","Listener to be notified when the line is modified."],["DeleteListener","Listener to be notified when some text is deleted."]]};

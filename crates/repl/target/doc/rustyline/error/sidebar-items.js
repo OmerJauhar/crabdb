@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":[["ReadlineError","The error type for Rustyline errors that can arise from I/O related errors or Errno when using the nix-rust library"]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":[["stmt_create_table",""],["stmt_data_loading","AST types specific to loading and unloading syntax, like one available in Snowflake which contains: STAGE ddl operations, PUT upload or COPY INTO See this page for more details."]]};
