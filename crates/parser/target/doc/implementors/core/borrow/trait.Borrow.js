@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"miette":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.67.0/core/borrow/trait.Borrow.html\" title=\"trait core::borrow::Borrow\">Borrow</a>&lt;dyn <a class=\"trait\" href=\"miette/trait.Diagnostic.html\" title=\"trait miette::Diagnostic\">Diagnostic</a> + 'static&gt; for <a class=\"struct\" href=\"miette/struct.Error.html\" title=\"struct miette::Error\">Report</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

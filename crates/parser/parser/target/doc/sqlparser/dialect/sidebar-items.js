@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["AnsiDialect",""],["BigQueryDialect",""],["ClickHouseDialect",""],["GenericDialect",""],["HiveDialect",""],["MsSqlDialect",""],["MySqlDialect",""],["PostgreSqlDialect",""],["RedshiftSqlDialect",""],["SQLiteDialect",""],["SnowflakeDialect",""]],"trait":[["Dialect",""]]};

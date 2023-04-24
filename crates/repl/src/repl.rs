@@ -1,5 +1,5 @@
 pub mod replmodule {
-
+use parser::parsermodule;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 //main function will return a Result Enum 
@@ -22,11 +22,11 @@ pub fn replfunction() -> Result<()> {
                 {
                     Ok(meow) => 
                     {
-                        println!("The code ran okayish {:?}",meow) ; 
+                        println!("{:?}",meow) ; 
                     }
                     Err(error)=>
                     {
-                        println!("The code ran not okaish {:?}",error) ; 
+                        println!("{:?}",error) ; 
                     }
                 }
                 println!("Line: {}", line);
