@@ -12,16 +12,28 @@ pub fn replfunction() -> Result<()> {
     // err checks if the result is err or ok()
     if rl.load_history("history.txt").is_err() {
         println!("No previous history.");
+
     }
+    println!("
+                          _         _ _     
+                         | |       | | |    
+            ___ _ __ __ _| |__   __| | |__  
+           / __| '__/ _` | '_ \\ / _` | '_ \\ 
+          | (__| | | (_| | |_) | (_| | |_) |
+           \\___|_|  \\__,_|_.__/ \\__,_|_.__/ 
+
+                                       BY OJ        
+");
     loop {
         // let a = 43 ; 
-        let readline = rl.readline(">> ");
+
+        let readline = rl.readline("crabdb >> ");
         match readline {
             Ok(line) => {
-                println!("{}",line);
+                // println!("{}",line);
                 match rl.add_history_entry(line.as_str())
                 {
-                    Ok(meow) => 
+                    Ok(_meow) => 
                     {
                         // println!("{:?}",meow) ; 
                     }
@@ -30,7 +42,7 @@ pub fn replfunction() -> Result<()> {
                         println!("{:?}",error) ; 
                     }
                 }
-                println!("Line: {}", line);
+                // println!("Line: {}", line);
                 parserftn(&line);
             },
             Err(ReadlineError::Interrupted) => {

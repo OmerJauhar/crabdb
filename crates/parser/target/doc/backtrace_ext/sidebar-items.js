@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["short_frames_strict","Gets an iterator over the frames that are part of Rust’s “short backtrace” range. If no such range is found, the full stack is yielded."]]};

@@ -1,4 +1,5 @@
 mod repl ;
+// use repl::replfunction();
 // use parser::parser::parserftn ; 
 // use parser ;  
 //main function will return a Result Enum 
@@ -13,7 +14,6 @@ fn main()
             println!("{}",errorstatement);
         }
     }
-    // let meow = "SELECT a,b FROM table_1;";
-    // parserftn(meow);
+
 
 }
