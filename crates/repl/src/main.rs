@@ -1,40 +1,19 @@
-use rustyline::error::ReadlineError;
-use rustyline::{DefaultEditor, Result};
-
-
+mod repl ;
+// use parser::parser::parserftn ; 
+// use parser ;  
 //main function will return a Result Enum 
-fn main() -> Result<()> {
-    // `()` can be used when no completer is required
-    let mut rl = DefaultEditor::new()?;
-    #[cfg(feature = "with-file-history")]
-    //rl.load history return a result enum 
-    // err checks if the result is err or ok()
-    if rl.load_history("history.txt").is_err() {
-        println!("No previous history.");
-    }
-    
-    loop {
-        let readline = rl.readline(">> ");
-        match readline {
-            Ok(line) => {
-                rl.add_history_entry(line.as_str());
-                println!("Line: {}", line);
-            },
-            Err(ReadlineError::Interrupted) => {
-                println!("CTRL-C");
-                break
-            },
-            Err(ReadlineError::Eof) => {
-                println!("CTRL-D");
-                break
-            },
-            Err(err) => {
-                println!("Error: {:?}", err);
-                break
-            }
+fn main()
+{
+    match repl::replfunction()
+    {
+        Ok(_okstatement) =>{
+            
+        }
+        Err(errorstatement) =>{
+            println!("{}",errorstatement);
         }
     }
-    #[cfg(feature = "with-file-history")]
-    rl.save_history("history.txt");
-    Ok(())
+    // let meow = "SELECT a,b FROM table_1;";
+    // parserftn(meow);
+
 }

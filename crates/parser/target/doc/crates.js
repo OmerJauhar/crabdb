@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["miette","miette_derive","once_cell","proc_macro2","quote","syn","thiserror","thiserror_impl","unicode_ident","unicode_width"];
+window.ALL_CRATES = ["memchr","miette","miette_derive","minimal_lexical","nom","once_cell","proc_macro2","quote","syn","thiserror","thiserror_impl","unicode_ident","unicode_width"];

@@ -1,5 +1,3 @@
-pub mod parsermodule 
-{
 use sqlparser::dialect::AnsiDialect;
 use sqlparser::parser::Parser;
 pub fn parserftn(sql_string:&str) -> ()
@@ -42,4 +40,3 @@ pub fn parserftn(sql_string:&str) -> ()
 
 }
 
-}

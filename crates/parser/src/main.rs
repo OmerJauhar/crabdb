@@ -3,7 +3,7 @@ use sqlparser::dialect::AnsiDialect;
 use syn::Expr;
 use syn::parse_str;
 use sqlparser::parser::Parser;
-fn parserftn() -> ()
+pub fn parserftn() -> ()
 {
     // let a = 32 ; 
     let sql_string = "SELECT a, b, c

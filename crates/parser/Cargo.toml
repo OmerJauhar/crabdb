@@ -10,5 +10,8 @@ edition = "2021"
 
 [dependencies]
 miette = "5.8.0"
+nom = "7.1.3"
+nom-supreme = "0.8.0"
+nom_locate = "4.1.0"
 sqlparser = "0.33.0"
 syn = "2.0.15"

@@ -1,7 +1,8 @@
-pub mod replmodule {
-use parser::parsermodule;
+
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
+use parser::parser::parserftn ;
+ 
 //main function will return a Result Enum 
 pub fn replfunction() -> Result<()> {
     // `()` can be used when no completer is required
@@ -12,17 +13,17 @@ pub fn replfunction() -> Result<()> {
     if rl.load_history("history.txt").is_err() {
         println!("No previous history.");
     }
-    
     loop {
-        let a = 43 ; 
+        // let a = 43 ; 
         let readline = rl.readline(">> ");
         match readline {
             Ok(line) => {
+                println!("{}",line);
                 match rl.add_history_entry(line.as_str())
                 {
                     Ok(meow) => 
                     {
-                        println!("{:?}",meow) ; 
+                        // println!("{:?}",meow) ; 
                     }
                     Err(error)=>
                     {
@@ -30,6 +31,7 @@ pub fn replfunction() -> Result<()> {
                     }
                 }
                 println!("Line: {}", line);
+                parserftn(&line);
             },
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
@@ -50,4 +52,3 @@ pub fn replfunction() -> Result<()> {
     Ok(())
 }
 
-}
