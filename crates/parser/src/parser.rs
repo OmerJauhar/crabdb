@@ -37,6 +37,10 @@ pub fn parserftn(sql_string:&str) -> ()
                     println!("Inside insert table") ; 
                     
                 }
+                Statement::ShowTables{extended,full,db_name,filter}=>
+                {
+                    println!("Inside show table");
+                }
                 _ =>
                 {
                     println!("this is the default arm");
