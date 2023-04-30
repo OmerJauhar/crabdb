@@ -1,20 +1,27 @@
+use sqlparser::ast::SetExpr;
 use sqlparser::dialect::AnsiDialect;
 use sqlparser::parser::Parser;
 use sqlparser::ast::Statement;
+use sqlparser::ast::Expr;
+use sqlparser::ast::Value;
 use execution ; 
+// extern  crate execution; 
+use execution::execution::executionmodule::Table ; 
+use execution::execution::executionmodule::column;
 
-#[derive(Debug)]
-struct column 
-{
-    name : String
-}
+// #[derive(Debug)]
+// struct column 
+// {
+//     name : String
+// }
 pub fn parserftn(sql_string:&str) -> ()
 {
     // let a = 32 ; 
     // let sql_string = "SELECT a, b
     //    FROM table_1 ";
 
-    let sql_dialect = AnsiDialect{} ; // using the ansi dialect 
+    let sql_dialect = AnsiDialect{} ;
+    let mut finalcurrentable : Table ;  // using the ansi dialect 
 
     let ast = Parser::parse_sql(&sql_dialect,sql_string); //ast : abstract syntax tree 
         match ast {
@@ -56,23 +63,86 @@ pub fn parserftn(sql_string:&str) -> ()
                         }
                     }
                     println!("{:?}",finalvector);
-                    // execution::insert
+                    finalcurrentable =Table::new(finalvector);
+                    
                     
 
                 }
                 Statement::Insert { or, into, table_name, columns, overwrite, source, partitioned, after_columns, table, on, returning }  =>
                 {
-                    println!("Inside insert table") ; 
+                    println!("Inside insert table") ;
+                    let mut  i = 0 ; 
+                    let mut finalvector = vec![column
+                    {
+                        name: String::from("dummy")
+                    }];
                     
+                    for iter in columns{
+                        if i == 0 
+                        {
+                            finalvector[0].name = iter.value ;
+                            i+=1 ;
+                        }
+                        else   {
+                            finalvector.push(column{
+                                name : iter.value
+                            });
+                        }
+                    }
+                    println!("{:?}",finalvector);
+                    finalcurrentable =Table::new(finalvector);
+                    let mut insertvector = Vec::new();
+                    match *source.body
+                    {
+                        SetExpr::Values(finalvalues) =>
+                        {
+
+                            // println!("{:?}",finalvalues.rows[0][0]);
+                            for iter in finalvalues.rows[0].iter()
+                            {
+                                // println!("{:?}",iter);
+                                match iter 
+                                {
+                                    Expr::Value(valuesfinal) =>
+                                    {
+                                        match valuesfinal
+                                        {
+                                            Value::Number(numbervar,boolval) =>
+                                            {
+                                                insertvector.push(numbervar.to_string());
+                                            }
+                                            Value::SingleQuotedString(stringvar) =>
+                                            {
+                                                insertvector.push(stringvar.to_string());
+                                            }
+                                            _ =>
+                                            {
+                                            }
+                                        }
+                                    }
+                                _ =>
+                                {
+                                }
+                                }
+                            }
+                        }
+                        _ =>
+                        {
+                        }
+                        
+                    }
+                    println!("{:?}",insertvector);
+                    finalcurrentable.insert(insertvector);
+                    finalcurrentable.printtable();
                 }
                 Statement::ShowTables{extended,full,db_name,filter}=>
                 {
                     println!("Inside show table");
+                    
                 }
                 _ =>
                 {
                     println!("this is the default arm");
-                    // println!("{:?}",start_index);
                 }
             }
 

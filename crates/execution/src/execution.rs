@@ -1,4 +1,6 @@
-use std::{collections::{BTreeMap, HashMap}, vec};
+pub mod executionmodule 
+{
+use std::{collections::{BTreeMap, HashMap}, vec,rc::Rc};
 use serde::{Deserialize, Serialize};
 // use sqlparser::ast::{Statement::CreateTable, ColumnDef};
 // use sql_jr_parser::Column; // See part 1 for this type def. Just column name and sql data type (string or int)
@@ -19,8 +21,10 @@ pub struct column
 type StoredRow = HashMap<String, String>;
 /// List of column info
 type ColumnInfo = Vec<column>;
+
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub(crate) struct Table {
+pub struct Table {
     /// row id to row
     rows: BTreeMap<usize, StoredRow>,
     /// Column info for all columns in the table
@@ -53,4 +57,22 @@ impl Table {
             .collect();
         self.rows.insert(id, row);
     }
+    pub fn printtable (&mut self )
+    {
+        println!("printing the values "); 
+        for (key , value) in &self.rows
+        {
+            for (key1,value1) in value 
+            {
+                println!("{:?} {:?}",key1,value1);
+            }   
+        }
+    }
+    // pub fn iter(&self) -> std::collections::btree_map::Iter<usize, Row> {
+    //     self.rows.iter()
+    // }
+}
+
+
+
 }
