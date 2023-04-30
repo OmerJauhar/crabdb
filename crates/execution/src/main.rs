@@ -1,12 +1,24 @@
-use std::collections::{BTreeMap, HashMap};
+use std::{collections::{BTreeMap, HashMap}, vec};
 use serde::{Deserialize, Serialize};
+// use sqlparser::ast::{Statement::CreateTable, ColumnDef};
 // use sql_jr_parser::Column; // See part 1 for this type def. Just column name and sql data type (string or int)
 // NOTE: For now just a mapping of col name => data as a str. Will change later
 /// A row stored in a table
 /// \
+// pub struct ident 
+// {
+    // pub value : String, 
+    // pub quote_style:Option<char>
+// } 
+
+#[derive(Debug,Clone , Serialize, Deserialize)]
+pub struct column 
+{
+   pub name :String
+}
 type StoredRow = HashMap<String, String>;
 /// List of column info
-type ColumnInfo = Vec<String>;
+type ColumnInfo = Vec<column>;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub(crate) struct Table {
     /// row id to row
@@ -17,7 +29,8 @@ pub(crate) struct Table {
 
 impl Table {
     // Create a table with the given column definitions
-    pub fn new(columns: Vec<String>) -> Self {
+    pub fn new( columns:Vec<column> ) -> Self {
+        
         Self {
             rows: BTreeMap::new(),
             columns,
@@ -27,6 +40,7 @@ impl Table {
     ///
     /// assumes the values are in the same order of the columns passed to create
     pub fn insert(&mut self, values: Vec<String>) {
+        
         let id = self
         .rows
         .last_key_value()

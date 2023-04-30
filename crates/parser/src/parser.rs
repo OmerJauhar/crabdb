@@ -1,6 +1,13 @@
 use sqlparser::dialect::AnsiDialect;
 use sqlparser::parser::Parser;
 use sqlparser::ast::Statement;
+use execution ; 
+
+#[derive(Debug)]
+struct column 
+{
+    name : String
+}
 pub fn parserftn(sql_string:&str) -> ()
 {
     // let a = 32 ; 
@@ -30,6 +37,27 @@ pub fn parserftn(sql_string:&str) -> ()
                 Statement::CreateTable { or_replace, temporary, external, global, if_not_exists, transient, name, columns, constraints, hive_distribution, hive_formats, table_properties, with_options, file_format, location, query, without_rowid, like, clone, engine, default_charset, collation, on_commit, on_cluster, order_by }   =>
                 {
                     println!("Inside create table ") ; 
+                    let mut  i = 0 ; 
+                    let mut finalvector = vec![column
+                    {
+                        name: String::from("dummy")
+                    }];
+                    
+                    for iter in columns{
+                        if i == 0 
+                        {
+                            finalvector[0].name = iter.name.value ;
+                            i+=1 ;
+                        }
+                        else   {
+                            finalvector.push(column{
+                                name : iter.name.value
+                            });
+                        }
+                    }
+                    println!("{:?}",finalvector);
+                    // execution::insert
+                    
 
                 }
                 Statement::Insert { or, into, table_name, columns, overwrite, source, partitioned, after_columns, table, on, returning }  =>
