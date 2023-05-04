@@ -42,6 +42,7 @@ fn main() {
                             {
                                 "sql" => 
                                 {
+                                    
                                     // println!("sql mode of execution");
                                     match repl::repl::replfunction() 
                                     {
