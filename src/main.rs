@@ -1,4 +1,7 @@
 use std::env; 
+use std::fs::File;
+use std::io::prelude::*;
+
 use repl;
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -42,14 +45,29 @@ fn main() {
                             {
                                 "sql" => 
                                 {
-                                    
+                                    let mut file = File::create("current.txt");
+                                    match &mut file 
+                                    {
+                                        Ok(file_unwraped) =>
+                                        {
+                                            match file_unwraped.write_all(b"DEFAULT") 
+                                            {
+                                                Ok(_) =>{}
+                                                Err(errorstatement) =>
+                                                {
+                                                    println!("{}",errorstatement);
+                                                }
+                                            }
+                                        }
+                                        Err(errorstatement) =>
+                                        {
+                                            println!("{}",errorstatement);
+                                        }
+                                    }
                                     // println!("sql mode of execution");
                                     match repl::repl::replfunction() 
                                     {
-                                        Ok(_okstatement) =>
-                                        {
-
-                                        }
+                                        Ok(_okstatement) =>{}
                                         Err(errorstatement) =>
                                         {
                                             println!("{}",errorstatement);

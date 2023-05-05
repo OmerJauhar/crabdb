@@ -6,13 +6,15 @@ use sqlparser::ast::Statement;
 use sqlparser::ast::Expr;
 use sqlparser::ast::Value;
 use std::fs::File;
+use std::fs ; 
 use std::io::prelude::*;
+use std::fs::OpenOptions;
+use std::num::ParseIntError;
 use execution ; 
 // extern  crate execution; 
 use execution::execution::executionmodule::Table ; 
 use execution::execution::executionmodule::column;
 use serde::{Deserialize, Serialize}; 
-
 
 #[derive(Debug,Serialize, Deserialize,Clone)]
 struct databases  
@@ -28,7 +30,7 @@ impl databases {
     fn addtable(&mut self,table_name : String) -> () {
         self.tables.push(table_name)
     }
-    fn describetablesftn (&mut self) -> ()
+    fn describetablesftn (&self) -> ()
     {
         println!("+---------------------------+");
         println!("| Tables                    |");
@@ -42,8 +44,10 @@ impl databases {
         println!("+---------------------------+");
 
     }
+    
 
 }
+
 #[derive(Debug , Serialize , Deserialize)]
 struct databases_array
 {
@@ -72,14 +76,38 @@ impl databases_array {
         }
         println!("+---------------------------+");
     }
+    fn exists(&self, checkstring :String) -> bool
+    {
+        let mut checkvar : bool = false ;  ; 
+        for i in &self.array
+        {
+            if i.name == checkstring {
+                 checkvar = true;
+            }
+        };
+        checkvar
+    }
 }
 
 pub fn parserftn(sql_string:&str) -> ()
 {
+    // let mut current_database = String::from("Default"); 
     let mut parser_databases_array = databases_array::new();
     let mut parser_database = databases::new(String::from("Default"));
     parser_databases_array.adddatabase(&parser_database);
-    let mut file = File::create("person.json").unwrap();
+    let filemetadata = fs::metadata("person.json");
+    match filemetadata {
+        Ok(metadata) =>
+        {
+            // println!("File do exists ");
+        }
+        Err(_) =>
+        {
+            println!("File is not created");
+            let mut file = File::create("person.json").unwrap();
+        }
+    }
+
     // let a = 32 ; 
     // let sql_string = "SELECT a, b
     //    FROM table_1 ";
@@ -204,19 +232,263 @@ pub fn parserftn(sql_string:&str) -> ()
                 }
                 Statement::ShowTables{extended,full,db_name,filter}=>
                 {
-                    println!("Inside show table");
+                    let mut contents = String::new();
+                    let mut file = File::open("current.txt");
+                    match &mut file 
+                    {
+                        Ok(file_unwrapped) =>
+                        {
+                            match file_unwrapped.read_to_string(&mut contents)
+                            {
+                                Ok(_) => 
+                                {
+                                    if contents == String::from("DEFAULT"){
+                                        println!("No Database Selected ");
+                                    }
+                                    else  {
+                                        let mut fileread = File::open("person.json");
+                                        match &mut fileread {
+                                            Ok(file) =>
+                                            {
+                                                let mut contents = String::new();
+                                                file.read_to_string(&mut contents).unwrap();
+                                                let read_database_array :databases_array = serde_json::from_str((&contents)).unwrap();
+                                                 for i in read_database_array.array.iter()
+                                                 {
+                                                    if i.name == contents {
+                                                        i.describetablesftn();
+                                                    }
+                                                 }
+                                                
+                                            }
+                                            Err(errormsg ) =>
+                                            {
+                                                println!("Inside error");
+                                                println!("{}",errormsg);
+                                            }
+                                        }
+                                    }
+                                }
+                                Err(errorstatement) =>
+                                {
+                                    println!("{}",errorstatement);
+                                }
+                            }
+                        }
+                        Err(errorstatement) =>
+                        {
+                            println!("{}",errorstatement);
+                        }
+                    }
                     
+                }
+                Statement::Drop { object_type, if_exists, names, cascade, restrict, purge } =>
+                {
+
                 }
                 Statement::CreateDatabase { db_name, if_not_exists, location, managed_location } =>
                 {
                     
-                    let mut filewrite = File::open("person.json").unwrap();
-                    let meow = db_name.0[0].value.clone();
-                    let meowdatabase = databases::new(meow);
-                    parser_databases_array.adddatabase(&meowdatabase);
-                    parser_databases_array.printdatabase();
-                    let serialized_parser_database_array  = serde_json::to_string(&parser_databases_array).unwrap();
-                    filewrite.write_all(serialized_parser_database_array.as_bytes()).unwrap();
+                    let mut fileread = File::open("person.json");
+                    match &mut fileread {
+                        Ok(file) =>
+                        {
+                            let mut contents = String::new();
+                            file.read_to_string(&mut contents).unwrap();
+                            let mut read_database_array :databases_array = serde_json::from_str((&contents)).unwrap();
+                            read_database_array.printdatabase();
+                            if(!read_database_array.exists(db_name.0[0].value.clone()))
+                            {
+                                file.set_len(0);
+                                drop(file);
+                                let mut filewrite = File::create("person.json");
+                                match &mut filewrite 
+                                {
+                                    Ok(file) =>
+                                    {
+                                        let meow = db_name.0[0].value.clone();
+                                        let meowdatabase = databases::new(meow);
+                                        read_database_array.adddatabase(&meowdatabase);
+                                        read_database_array.printdatabase();
+    
+                                        let serialized_parser_database_array  = serde_json::to_string(&read_database_array);
+                                        match &serialized_parser_database_array
+                                        {
+                                            Ok(spda_string) =>
+                                            {
+                                                match file.write_all(spda_string.as_bytes()) 
+                                                {
+                                                    Ok(_) =>
+                                                    {
+                                                        println!("Successfull");
+                                                    }
+                                                    Err(errormsg) =>
+                                                    {   
+                                                        println!("error : {}",errormsg);
+                                                    }
+                                                }
+                                            }
+                                            Err(_) =>
+                                            {
+                                                println!("Error at serde_json");
+                                            }
+                                        }
+    
+                                    }
+                                    Err(_) =>
+                                    {
+                                        println!("File not opened in createdb");
+                                    }
+                                }
+                            }
+                            else  {
+                                println!("Database Already Exists!");
+                            }
+
+                            
+                        }
+                        Err(errormsg ) =>
+                        {
+                            println!("Inside error");
+                            println!("{}",errormsg);
+                        }
+                    }
+                    
+                    // // let mut fileread = OpenOptions::new()
+                    // // .write(true)
+                    // // .truncate(true)
+                    // // .open("person.json");
+                    // let mut fileread = File::open("person.json");
+                    // match &mut fileread
+                    // {
+                    //     Ok(filew) =>
+                    //     {
+                    //         let mut contents = String::new(); 
+                    //         filew.read_to_string(&mut contents).unwrap();
+                    //         let mut read_database_array :databases_array = serde_json::from_str(&contents).unwrap();
+                    //         let meowdatabase = databases::new(db_name.0[0].value.clone());
+                    //         read_database_array.adddatabase(&meowdatabase);
+                    //         match filew.set_len(0)
+                    //         {
+                    //             Ok(_) =>
+                    //             {
+                    //                 let serialized_parser_database_array  = serde_json::to_string(&read_database_array);
+                    //                 match &serialized_parser_database_array
+                    //                 {
+                    //                     Ok(spda_string) =>
+                    //                     {
+                    //                         match filew.write_all(spda_string.as_bytes()) 
+                    //                         {
+                    //                             Ok(_) =>
+                    //                             {
+                    //                                 println!("Successfull");
+                    //                             }
+                    //                             Err(errormsg) =>
+                    //                             {   
+                    //                                 println!("error : {}",errormsg);
+                    //                             }
+                    //                         }
+                    //                     }
+                    //                     Err(_) =>
+                    //                     {
+                    //                         println!("Error at serde_json");
+                    //                     }
+                    //                 }    
+                    //             }
+                    //             Err(_) =>
+                    //             {
+                                
+                    //             }
+                    //         } 
+
+                    //     }
+                    //     Err(error) =>
+                    //     {
+                    //         println!("Error ");
+                    //     }
+                    // }
+                    // let mut fileread = File::open("person.json");
+                    // match &mut fileread {
+                    //     Ok(file) =>
+                    //     {
+                    //         let mut contents = String::new();
+                    //         file.read_to_string(&mut contents).unwrap();
+                    //         let mut read_database_array :databases_array = serde_json::from_str((&contents)).unwrap();
+                    //         let  meow: String = db_name.0[0].value.clone();
+                    //         let  meowdatabase = databases::new(meow);
+                    //         read_database_array.adddatabase(&meowdatabase);
+                    //         file.set_len(0);
+                    //         let serialized_parser_database_array  = serde_json::to_string(&read_database_array);
+                    //         match &serialized_parser_database_array
+                    //         {
+                    //             Ok(spda_string) =>
+                    //             {
+                    //                 match file.write_all(spda_string.as_bytes()) 
+                    //                 {
+                    //                     Ok(_) =>
+                    //                     {
+                    //                         println!("Successfull");
+                    //                     }
+                    //                     Err(errormsg) =>
+                    //                     {   
+                    //                         println!("error : {}",errormsg);
+                    //                     }
+                    //                 }
+                    //             }
+                    //             Err(_) =>
+                    //             {
+                    //                 println!("Error at serde_json");
+                    //             }
+                    //         }    
+                    //     }
+                    //     Err(errormsg ) =>
+                    //     {
+                    //         println!("Inside error");
+                    //         println!("{}",errormsg);
+                    //     }
+                    // }
+                    
+                    // let mut filewrite = File::open("person.json");
+                    // let mut filewrite = File::create("person.json");
+                    // match &mut filewrite 
+                    // {
+                    //     Ok(file) =>
+                    //     {
+                    //         let meow = db_name.0[0].value.clone();
+                    //         let meowdatabase = databases::new(meow);
+                    //         parser_databases_array.adddatabase(&meowdatabase);
+                    //         parser_databases_array.printdatabase();
+                            
+                    //         let serialized_parser_database_array  = serde_json::to_string(&parser_databases_array);
+                    //         match &serialized_parser_database_array
+                    //         {
+                    //             Ok(spda_string) =>
+                    //             {
+                    //                 match file.write_all(spda_string.as_bytes()) 
+                    //                 {
+                    //                     Ok(_) =>
+                    //                     {
+                    //                         println!("Successfull");
+                    //                     }
+                    //                     Err(errormsg) =>
+                    //                     {   
+                    //                         println!("error : {}",errormsg);
+                    //                     }
+                    //                 }
+                    //             }
+                    //             Err(_) =>
+                    //             {
+                    //                 println!("Error at serde_json");
+                    //             }
+                    //         }
+                            
+                    //     }
+                    //     Err(_) =>
+                    //     {
+                    //         println!("File not opened in createdb");
+                    //     }
+                    // }
+
                 }
                 Statement::ShowCollation { filter } =>
                 {
@@ -224,7 +496,50 @@ pub fn parserftn(sql_string:&str) -> ()
                 }
                 Statement:: Use { db_name } =>
                 {
-                    println!("Inside use database ");
+                    let mut fileread = File::open("person.json");
+                    match &mut fileread {
+                        Ok(file) =>
+                        {
+                            let mut contents = String::new();
+                            file.read_to_string(&mut contents).unwrap();
+                            let read_database_array :databases_array = serde_json::from_str((&contents)).unwrap();
+                            if read_database_array.exists(db_name.value.clone())
+                            {
+                                let mut file = File::create("current.txt");
+                                match &mut file {
+                                    Ok(file_unwrapped) =>
+                                    {
+                                    match file_unwrapped.set_len(0)
+                                    {
+                                        Ok(_) => {}
+                                        Err(errorstatement) => {println!("{}",errorstatement)}
+                                    }
+                                    match file_unwrapped.write_all(db_name.value.clone().as_bytes())
+                                    {
+                                        Ok(_) => {}
+                                        Err(errorstatement) => {println!("{}",errorstatement)}
+                                    }
+                                    }
+                                    Err(errorstatement) =>
+                                    {
+                                        println!("{}",errorstatement);
+                                    }
+                                }
+                                // println!("Database switched to {}",GLOBAL_CURRENT_DB);
+                            }
+                            else  {
+                                println!("Database does not exists.");
+                                println!("Current Databases are :");
+                                read_database_array.printdatabase();
+                            }
+                            
+                        }
+                        Err(errormsg ) =>
+                        {
+                            println!("Inside error");
+                            println!("{}",errormsg);
+                        }
+                    }
                 }
                 _=>
                 {
@@ -234,18 +549,14 @@ pub fn parserftn(sql_string:&str) -> ()
                     // fileread.read_to_string(&mut contents).unwrap();
                     // let read_database_array : databases_array= serde_json::from_str((&contents)).unwrap();
                     // read_database_array.printdatabase();
-                    println!("Inside Show Databases ");
                     let mut fileread = File::open("person.json");
                     match &mut fileread {
                         Ok(file) =>
                         {
-                            println!("Inside OK");
                             let mut contents = String::new();
                             file.read_to_string(&mut contents).unwrap();
-                            println!("{}",contents);
-                            println!("After Contents");
-                            // let read_database_array  = serde_json::from_str((&contents)).unwrap();
-                            // read_database_array.printdatabase();
+                            let read_database_array :databases_array = serde_json::from_str((&contents)).unwrap();
+                            read_database_array.printdatabase();
                             
                         }
                         Err(errormsg ) =>
