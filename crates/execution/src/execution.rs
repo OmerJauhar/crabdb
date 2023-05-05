@@ -67,7 +67,10 @@ impl Table {
                 println!("{:?} {:?}",key1,value1);
             }   
         }
+
     }
+
+        
     // pub fn iter(&self) -> std::collections::btree_map::Iter<usize, Row> {
     //     self.rows.iter()
     // }
