@@ -1,9 +1,9 @@
 pub mod executionmodule 
 {
-use std::{collections::{BTreeMap, HashMap}, vec,rc::Rc};
+use std::{collections::{BTreeMap, HashMap}};
 use serde::{Deserialize, Serialize};
 // use sqlparser::ast::{Statement::CreateTable, ColumnDef};
-// use sql_jr_parser::Column; // See part 1 for this type def. Just column name and sql data type (string or int)
+// use sql_jr_parser::Column; // See part 1 for this type def. Just Column name and sql data type (string or int)
 // NOTE: For now just a mapping of col name => data as a str. Will change later
 /// A row stored in a table
 /// \
@@ -14,13 +14,13 @@ use serde::{Deserialize, Serialize};
 // } 
 
 #[derive(Debug,Clone , Serialize, Deserialize)]
-pub struct column 
+pub struct Column 
 {
    pub name :String
 }
 type StoredRow = HashMap<String, String>;
-/// List of column info
-type ColumnInfo = Vec<column>;
+/// List of Column info
+type ColumnInfo = Vec<Column>;
 
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -32,8 +32,8 @@ pub struct Table {
 }
 
 impl Table {
-    // Create a table with the given column definitions
-    pub fn new( columns:Vec<column> ) -> Self {
+    // Create a table with the given Column definitions
+    pub fn new( columns:Vec<Column> ) -> Self {
         
         Self {
             rows: BTreeMap::new(),
@@ -60,7 +60,7 @@ impl Table {
     pub fn printtable (&mut self )
     {
         println!("printing the values "); 
-        for (key , value) in &self.rows
+        for (_key , value) in &self.rows
         {
             for (key1,value1) in value 
             {

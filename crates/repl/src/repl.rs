@@ -26,7 +26,7 @@ pub fn replfunction() -> Result<()> {
 ");
     loop {
         // let a = 43 ; 
-
+        println!("");
         let readline = rl.readline("crabdb >> ");
         match readline {
             Ok(line) => {
@@ -36,6 +36,7 @@ pub fn replfunction() -> Result<()> {
                     Ok(_meow) => 
                     {
                         // println!("{:?}",meow) ; 
+                        println!("");
                     }
                     Err(error)=>
                     {
