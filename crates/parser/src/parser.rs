@@ -30,6 +30,19 @@ impl DataBases {
     fn addtable(&mut self,table_name : String) -> () {
         self.tables.push(table_name)
     }
+    fn rmtable(&mut self , table_name: String) ->()
+    {
+        let index = self.tables.iter().position(|n| n == &table_name);
+        match index
+        {
+            Some(i) => 
+            {
+                self.tables.remove(i);
+                println!("Table dropped successfully");
+            }
+            None => println!("Table does not exist")
+        }
+    } 
     fn describetablesftn (&self) -> ()
     {
         println!("+---------------------------+");
@@ -435,9 +448,114 @@ pub fn parserftn(sql_string:&str) -> ()
                     }
                     
                 }
-                Statement::Drop { object_type:_, if_exists:_, names:_, cascade:_, restrict:_, purge:_ } =>
+                Statement::Drop { object_type, if_exists:_, names, cascade:_, restrict:_, purge:_ } =>
                 {
+                    //drop table implementation
+                    let mut  boolvar = false ; 
+                    match object_type
+                    {
+                        Table =>
+                        {
+                            let  table_name = names[0].0[0].value.clone();
+                            let mut contents1 = String::new();
+                            let mut file = File::open("current.txt");
+                            match &mut file 
+                            {
+                                Ok(file_unwrapped) =>
+                                {
+                                    match file_unwrapped.read_to_string(&mut contents1)
+                                    {
+                                        Ok(_) => 
+                                        {
+                                            if contents1 == String::from("DEFAULT"){
+                                                println!("No Database Selected ");
+                                            }
+                                            else  {
+                                                let mut fileread = File::open("person.json");
+                                                match &mut fileread {
+                                                    Ok(file) =>
+                                                    {
+                                                        let mut contents = String::new();
+                                                        file.read_to_string(&mut contents).unwrap();
+                                                        let mut  read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
+                                                         for i in read_database_array.array.iter_mut()
+                                                         { 
+                                                            for j in i.tables.clone()
+                                                            {
+                                                                if j == table_name 
+                                                                {
+                                                                    i.rmtable(table_name.clone());
+                                                                    boolvar = true ; 
+                                                                    break ; 
+                                                                }
+                                                            }
+                                                         }
+                                                         if boolvar == false 
+                                                         {
+                                                            println!("No table {} in database {}",table_name,contents1);
+                                                         }
+                                                         if boolvar
+                                                         {
+                                                             let mut filewrite = File::create("person.json");
+                                                             file.set_len(0);
+                                                             match &mut filewrite 
+                                                             {
+                                                                 Ok(file) => 
+                                                                 {
+                                                                     let serialized_parser_database_array  = serde_json::to_string(&read_database_array);
+                                                                     match &serialized_parser_database_array
+                                                                     {
+                                                                         Ok(spda_string) =>
+                                                                         {
+                                                                             match file.write_all(spda_string.as_bytes()) 
+                                                                             {
+                                                                                 Ok(_) =>
+                                                                                 {
+                                                                                     println!("Successfull");
+                                                                                 }
+                                                                                 Err(errormsg) =>
+                                                                                 {   
+                                                                                     println!("error : {}",errormsg);
+                                                                                 }
+                                                                             }
+                                                                         }
+                                                                         Err(_) =>
+                                                                         {
+                                                                             println!("Error at serde_json");
+                                                                         }
+                                                                     }
+                                                                 }
+                                                                 Err(errorstatement) => { println!("{}",errorstatement)}
+                                                             } 
+                                                         }
+                                                     
+                                                    }
+                                                    Err(errormsg ) =>
+                                                    {
+                                                        println!("Inside error");
+                                                        println!("{}",errormsg);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Err(errorstatement) =>
+                                        {
+                                            println!("{}",errorstatement);
+                                        }
+                                    }
+                                    
+                                }
+                                Err(errorstatement) =>
+                                {
+                                    println!("{}",errorstatement);
+                                }
+                                
+                            }
+                            
+                    
 
+                        }
+                    }
                 }
                 Statement::CreateDatabase { db_name, if_not_exists:_, location:_, managed_location:_ } =>
                 {
