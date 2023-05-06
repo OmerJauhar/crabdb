@@ -1,15 +1,15 @@
 use sqlparser::ast::SetExpr;
 use sqlparser::dialect::AnsiDialect;
-// use sqlparser::parser;
 use sqlparser::parser::Parser;
 use sqlparser::ast::Statement;
 use sqlparser::ast::Expr;
 use sqlparser::ast::Value;
+use std::fmt::format;
 use std::fs::File;
 use std::fs ; 
+use std::ops::Index;
+use std::slice::SliceIndex;
 use std::io::prelude::*;
-// use std::fs::OpenOptions;
-// use std::num::ParseIntError;
 use execution ; 
 // extern  crate execution; 
 use execution::execution::executionmodule::Table ; 
@@ -27,7 +27,7 @@ impl DataBases {
     fn new(database_name :String ) -> Self{
         Self { name: (database_name), tables: (Vec::new()) }
     }
-    fn _addtable(&mut self,table_name : String) -> () {
+    fn addtable(&mut self,table_name : String) -> () {
         self.tables.push(table_name)
     }
     fn describetablesftn (&self) -> ()
@@ -129,28 +129,180 @@ pub fn parserftn(sql_string:&str) -> ()
                     // println!("{:?}",table_name);
                     // println!("{:?}",);
                 }
-                Statement::CreateTable { or_replace:_, temporary:_, external:_, global:_, if_not_exists:_, transient:_, name:_, columns, constraints:_, hive_distribution:_, hive_formats:_, table_properties:_, with_options:_, file_format:_, location:_, query:_, without_rowid:_, like:_, clone:_, engine:_, default_charset:_, collation:_, on_commit:_, on_cluster:_, order_by:_ }   =>
+                Statement::CreateTable { or_replace:_, temporary:_, external:_, global:_, if_not_exists:_, transient:_, name, columns, constraints:_, hive_distribution:_, hive_formats:_, table_properties:_, with_options:_, file_format:_, location:_, query:_, without_rowid:_, like:_, clone:_, engine:_, default_charset:_, collation:_, on_commit:_, on_cluster:_, order_by:_ }   =>
                 {
-                    println!("Inside create table ") ; 
-                    let mut  i = 0 ; 
-                    let mut finalvector = vec![Column
+                    let mut contents1 = String::new();
+                    let mut file = File::open("current.txt");
+                    let mut boolvar = false ;  
+                    match &mut file 
                     {
-                        name: String::from("dummy")
-                    }];
-                    
-                    for iter in columns{
-                        if i == 0 
+                        Ok(file_unwrapped) =>
                         {
-                            finalvector[0].name = iter.name.value ;
-                            i+=1 ;
+                            match file_unwrapped.read_to_string(&mut contents1)
+                            {
+                                Ok(_) => 
+                                {
+                                    if contents1 == String::from("DEFAULT"){
+                                        println!("No Database Selected ");
+                                    }
+                                    else  {
+                                        let mut fileread = File::open("person.json");
+                                        match &mut fileread {
+                                            Ok(file) =>
+                                            {
+                                                let mut contents = String::new();
+                                                // file.read_to_string(&mut contents).unwrap();
+                                                file.read_to_string(&mut contents).unwrap();
+
+                                                let mut read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
+                                                for  i in read_database_array.array.iter_mut()
+                                                {
+                                                   if (i.name == contents1)
+                                                   {
+                                                    //    println!("matched");
+                                                       i.addtable(name.0[0].value.clone());
+                                                       i.describetablesftn(); 
+                                                       let mut  i = 0 ; 
+                                                       let mut finalvector = vec![Column
+                                                       {
+                                                           name: String::from("dummy")
+                                                       }];
+                                                       
+                                                       for iter in columns{
+                                                           if i == 0 
+                                                           {
+                                                               finalvector[0].name = iter.name.value ;
+                                                               i+=1 ;
+                                                           }
+                                                           else   {
+                                                               finalvector.push(Column{
+                                                                   name : iter.name.value
+                                                               });
+                                                           }
+                                                       }
+                                                    //    println!("{:?}",finalvector);
+                                                       let currentable =Table::new(finalvector);
+                                                       let table_file = name.0[0].value.clone().to_string() + ".json";
+                                                    //    println!("{}",table_file);
+                                                       let mut filewrite = File::create(table_file);
+                                                       match &mut filewrite
+                                                       {
+                                                        Ok(file) =>
+                                                        {
+                                                            let serialized_current_table = serde_json::to_string((&currentable));
+                                                            match &serialized_current_table
+                                                            {
+                                                             Ok(sct) =>
+                                                             {
+                                                                 match file.write_all(sct.as_bytes())
+                                                                 {
+                                                                     Ok(_) =>
+                                                                     {
+                                                                        //  println!("Successfull");
+                                                                     }
+                                                                     Err(errorstatement) => {println!("{}",errorstatement)}
+     
+                                                                 }
+                                                             }
+                                                             Err(errorstatement) =>
+                                                             {
+                                                                 println!("{}",errorstatement);   
+                                                             }
+                                                            }
+                                                        }
+                                                        Err(errorstatement) =>
+                                                        {
+                                                            println!("{}",errorstatement);
+                                                        }
+                                                       }
+                                                       boolvar = true ;
+                                                       break;
+                                                   }
+                                                }   
+                                                if boolvar
+                                                {
+                                                    let mut filewrite = File::create("person.json");
+                                                    file.set_len(0);
+                                                    match &mut filewrite 
+                                                    {
+                                                        Ok(file) => 
+                                                        {
+                                                            let serialized_parser_database_array  = serde_json::to_string(&read_database_array);
+                                                            match &serialized_parser_database_array
+                                                            {
+                                                                Ok(spda_string) =>
+                                                                {
+                                                                    match file.write_all(spda_string.as_bytes()) 
+                                                                    {
+                                                                        Ok(_) =>
+                                                                        {
+                                                                            println!("Successfull");
+                                                                        }
+                                                                        Err(errormsg) =>
+                                                                        {   
+                                                                            println!("error : {}",errormsg);
+                                                                        }
+                                                                    }
+                                                                }
+                                                                Err(_) =>
+                                                                {
+                                                                    println!("Error at serde_json");
+                                                                }
+                                                            }
+                                                        }
+                                                        Err(errorstatement) => { println!("{}",errorstatement)}
+                                                    } 
+                                                }
+                                                       
+                                                    
+                                                
+
+                                            }
+                                            Err(errormsg ) =>
+                                            {
+                                                println!("Inside error");
+                                                println!("{}",errormsg);
+                                            }
+                                        }
+                                        if boolvar
+                                        {
+                                            
+                                            
+                                        }
+                                    }
+                                }
+                                Err(errorstatement) =>
+                                {
+                                    println!("{}",errorstatement);
+                                }
+                            }
                         }
-                        else   {
-                            finalvector.push(Column{
-                                name : iter.name.value
-                            });
+                        Err(errorstatement) =>
+                        {
+                            println!("{}",errorstatement);
                         }
                     }
-                    println!("{:?}",finalvector);
+                    // println!("Inside create table ") ; 
+
+                    // let mut  i = 0 ; 
+                    // let mut finalvector = vec![Column
+                    // {
+                    //     name: String::from("dummy")
+                    // }];
+                    
+                    // for iter in columns{
+                    //     if i == 0 
+                    //     {
+                    //         finalvector[0].name = iter.name.value ;
+                    //         i+=1 ;
+                    //     }
+                    //     else   {
+                    //         finalvector.push(Column{
+                    //             name : iter.name.value
+                    //         });
+                    //     }
+                    // }
+                    // println!("{:?}",finalvector);
                     // finalcurrentable =Table::new(finalvector);
                     
                     
@@ -232,17 +384,17 @@ pub fn parserftn(sql_string:&str) -> ()
                 }
                 Statement::ShowTables{extended:_,full:_,db_name:_,filter:_}=>
                 {
-                    let mut contents = String::new();
+                    let mut contents1 = String::new();
                     let mut file = File::open("current.txt");
                     match &mut file 
                     {
                         Ok(file_unwrapped) =>
                         {
-                            match file_unwrapped.read_to_string(&mut contents)
+                            match file_unwrapped.read_to_string(&mut contents1)
                             {
                                 Ok(_) => 
                                 {
-                                    if contents == String::from("DEFAULT"){
+                                    if contents1 == String::from("DEFAULT"){
                                         println!("No Database Selected ");
                                     }
                                     else  {
@@ -254,8 +406,9 @@ pub fn parserftn(sql_string:&str) -> ()
                                                 file.read_to_string(&mut contents).unwrap();
                                                 let read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
                                                  for i in read_database_array.array.iter()
-                                                 {
-                                                    if i.name == contents {
+                                                 { 
+                                                    if i.name == contents1 
+                                                    {
                                                         i.describetablesftn();
                                                     }
                                                  }
