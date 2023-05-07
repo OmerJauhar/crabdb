@@ -328,72 +328,164 @@ pub fn parserftn(sql_string:&str) -> ()
                     // finalcurrentable.printtable();
                     
                 }
-                Statement::Insert { or:_, into:_, table_name:_, columns, overwrite:_, source, partitioned:_, after_columns:_, table:_, on:_, returning:_ }  =>
+                Statement::Insert { or:_, into:_, table_name, columns, overwrite:_, source, partitioned:_, after_columns:_, table:_, on:_, returning:_ }  =>
                 {
-                    println!("Inside insert table") ;
-                    let mut  i = 0 ; 
-                    let mut finalvector = vec![Column
+                    let tablename = table_name.0[0].value.clone();
+                    let mut boolvar = false ;
+                    let mut contents1 = String::new();
+                    let mut file = File::open("current.txt");
+                    match &mut file 
                     {
-                        name: String::from("dummy")
-                    }];
-                    
-                    for iter in columns{
-                        if i == 0 
+                        Ok(file_unwrapped) =>
                         {
-                            finalvector[0].name = iter.value ;
-                            i+=1 ;
-                        }
-                        else   {
-                            finalvector.push(Column{
-                                name : iter.value
-                            });
-                        }
-                    }
-                    println!("{:?}",finalvector);
-                    finalcurrentable =Table::new(finalvector);
-                    let mut insertvector = Vec::new();
-                    match *source.body
-                    {
-                        SetExpr::Values(finalvalues) =>
-                        {
-
-                            // println!("{:?}",finalvalues.rows[0][0]);
-                            for iter in finalvalues.rows[0].iter()
+                            match file_unwrapped.read_to_string(&mut contents1)
                             {
-                                // println!("{:?}",iter);
-                                match iter 
+                                Ok(_) => 
                                 {
-                                    Expr::Value(valuesfinal) =>
-                                    {
-                                        match valuesfinal
-                                        {
-                                            Value::Number(numbervar,_boolval) =>
+                                    if contents1 == String::from("DEFAULT"){
+                                        println!("No Database Selected ");
+                                    }
+                                    else  {
+                                        let mut fileread = File::open("person.json");
+                                        match &mut fileread {
+                                            Ok(file) =>
                                             {
-                                                insertvector.push(numbervar.to_string());
+                                                let mut contents = String::new();
+                                                file.read_to_string(&mut contents).unwrap();
+                                                let read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
+                                                 for i in read_database_array.array.iter()
+                                                 { 
+                                                    if i.name == contents1 
+                                                    {
+                                                        // println!("Table do exists");
+                                                        boolvar = true ; 
+                                                    }
+                                                 }
+                                                
                                             }
-                                            Value::SingleQuotedString(stringvar) =>
+                                            Err(errormsg ) =>
                                             {
-                                                insertvector.push(stringvar.to_string());
-                                            }
-                                            _ =>
-                                            {
+                                                println!("Inside error");
+                                                println!("{}",errormsg);
                                             }
                                         }
                                     }
-                                _ =>
-                                {
                                 }
+                                Err(errorstatement) =>
+                                {
+                                    println!("{}",errorstatement);
                                 }
                             }
                         }
-                        _ =>
+                        Err(errorstatement) =>
                         {
+                            println!("{}",errorstatement);
                         }
-                        
                     }
-                    println!("{:?}",insertvector);
-                    finalcurrentable.insert(insertvector);
-                    finalcurrentable.printtable();
+                    if boolvar
+                    {
+                        let mut finalvector = Vec::new();
+                        for iter in columns
+                        {
+                            finalvector.push(iter.value)
+                        }
+                        let filepath = tablename +".json";
+                        let mut fileread = File::open(filepath.clone());
+                            match &mut fileread {
+                                Ok(file) =>
+                                {
+                                    let mut contents = String::new();
+                                    // file.read_to_string(&mut contents).unwrap();
+                                    file.read_to_string(&mut contents).unwrap();
+                                    let mut read_table :Table = serde_json::from_str(&contents).unwrap();
+                                    read_table.insert(finalvector);
+                                    read_table.printtable();
+                                    let mut filewrite = File::create(filepath);
+                                                             file.set_len(0);
+                                                             match &mut filewrite 
+                                                             {
+                                                                 Ok(file) => 
+                                                                 {
+                                                                     let serialized_parser_database_array  = serde_json::to_string(&read_table);
+                                                                     match &serialized_parser_database_array
+                                                                     {
+                                                                         Ok(spda_string) =>
+                                                                         {
+                                                                             match file.write_all(spda_string.as_bytes()) 
+                                                                             {
+                                                                                 Ok(_) =>
+                                                                                 {
+                                                                                    println!("Sucessful");
+                                                                                 }
+                                                                                 Err(errormsg) =>
+                                                                                 {   
+                                                                                     println!("error : {}",errormsg);
+                                                                                 }
+                                                                             }
+                                                                         }
+                                                                         Err(_) =>
+                                                                         {
+                                                                             println!("Error at serde_json");
+                                                                         }
+                                                                     }
+                                                                 }
+                                                                 Err(errorstatement) => { println!("{}",errorstatement)}
+                                                             } 
+
+                                    
+                                    println!("dfdf");
+                                }
+                                Err(errorstatement) => {println!("{}",errorstatement)}
+                        }
+
+                    }
+
+                    
+                    // println!("{:?}",finalvector);
+                    // finalcurrentable =Table::new(finalvector);
+                    // let mut insertvector = Vec::new();
+                    // match *source.body
+                    // {
+                    //     SetExpr::Values(finalvalues) =>
+                    //     {
+
+                    //         // println!("{:?}",finalvalues.rows[0][0]);
+                    //         for iter in finalvalues.rows[0].iter()
+                    //         {
+                    //             // println!("{:?}",iter);
+                    //             match iter 
+                    //             {
+                    //                 Expr::Value(valuesfinal) =>
+                    //                 {
+                    //                     match valuesfinal
+                    //                     {
+                    //                         Value::Number(numbervar,_boolval) =>
+                    //                         {
+                    //                             insertvector.push(numbervar.to_string());
+                    //                         }
+                    //                         Value::SingleQuotedString(stringvar) =>
+                    //                         {
+                    //                             insertvector.push(stringvar.to_string());
+                    //                         }
+                    //                         _ =>
+                    //                         {
+                    //                         }
+                    //                     }
+                    //                 }
+                    //             _ =>
+                    //             {
+                    //             }
+                    //             }
+                    //         }
+                    //     }
+                    //     _ =>
+                    //     {
+                    //     }
+                        
+                    // }
+                    // println!("{:?}",insertvector);
+                    // finalcurrentable.insert(insertvector);
+                    // finalcurrentable.printtable();
                 }
                 Statement::ShowTables{extended:_,full:_,db_name:_,filter:_}=>
                 {
