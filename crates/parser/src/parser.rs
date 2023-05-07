@@ -575,11 +575,12 @@ pub fn parserftn(sql_string:&str) -> ()
                             read_database_array.printdatabase();
                             if!read_database_array.exists(db_name.0[0].value.clone())
                             {
-                                match file.set_len(0)
-                                {
-                                    Ok(file1) =>
-                                    {
-                                        drop(file1);
+                                // match file.set_len(0)
+                                // {
+                                //     Ok(file1) =>
+                                //     {
+                                        file.set_len(0);
+                                        drop(file);
                                         let mut filewrite = File::create("person.json");
                                         match &mut filewrite 
                                         {
@@ -618,13 +619,13 @@ pub fn parserftn(sql_string:&str) -> ()
                                             {
                                                 println!("File not opened in createdb");
                                             }
+                                        // }
+                                //     }
+                                //     Err(errorstatement)=>
+                                //     {
+                                //         println!("{}",errorstatement);
+                                //     }
                                         }
-                                    }
-                                    Err(errorstatement)=>
-                                    {
-                                        println!("{}",errorstatement);
-                                    }
-                                }
                                 
 
                             }
@@ -846,7 +847,6 @@ pub fn parserftn(sql_string:&str) -> ()
                             file.read_to_string(&mut contents).unwrap();
                             let read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
                             read_database_array.printdatabase();
-                            
                         }
                         Err(errormsg ) =>
                         {
