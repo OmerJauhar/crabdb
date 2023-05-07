@@ -57,15 +57,88 @@ impl Table {
             .collect();
         self.rows.insert(id, row);
     }
-    pub fn printtable (&mut self )
+    pub fn selectftn(&mut self , columns: Vec<String> , table_name : String) -> ()
     {
-        println!("printing the values "); 
-        for (_key , value) in &self.rows
+        let mut boolvar = false ; 
+        println!("printing the values");
+        for (_key , value) in self.rows.clone()
         {
             for (key1,value1) in value 
             {
-                println!("{:?} {:?}",key1,value1);
+
+                
+                for i in columns.clone()
+                {
+                    if i == "*"
+                    {
+                        self.printtable(table_name.clone());
+                        boolvar = true ; 
+                        break ; 
+                    }
+                    else
+                    {
+                        if i == key1{
+                            println!("{}",value1);
+                        }
+                    }
+                }
+                if boolvar
+                {
+                    break ;
+                }
+                
             }   
+            if boolvar
+            {
+                break;
+            }
+        }
+    }
+    pub fn printtable (&mut self ,table_name : String)
+    {
+        println!("+----------------------------------++");
+        println!("| Table:  {:.15}                ||",table_name.clone());
+        // println!("+----------------------------------++");
+
+        for (_key , value) in self.rows.clone()
+        {
+            for i  in value.iter()
+            {
+                    print!("+----------------+");
+            }  
+            println!();
+            for (key1,value1) in value.clone()
+            {
+                    // print!("+----------+");
+                    let printpadded =  format!("|{:^15.15} ",key1);
+                    print!("{}|",printpadded);
+                    // print!("+----------+");
+            }   
+            println!();
+            for i in value.iter()
+            {
+                    print!("+----------------+");
+            }  
+            break ;
+        }
+        println!("{:?}",self.rows);
+        for (_key , value) in self.rows.clone()
+        {
+            println!("{:?}",_key);
+            println!();
+            for (key1,value1) in value.clone()
+            {
+                    // print!("+----------+");
+                    let printpadded =  format!("|{:^15.15} ",value1);
+                    print!("{}|",printpadded);
+                    // print!("+----------+");
+            }   
+            println!();
+            for i in value.iter()
+            {
+                    print!("+----------------+");
+            }  
+            break ;
         }
 
     }

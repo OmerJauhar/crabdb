@@ -1,3 +1,4 @@
+use sqlparser::ast::Select;
 use sqlparser::ast::SetExpr;
 use sqlparser::dialect::AnsiDialect;
 use sqlparser::parser::Parser;
@@ -7,6 +8,7 @@ use sqlparser::ast::Value;
 use std::fmt::format;
 use std::fs::File;
 use std::fs ; 
+use std::iter::StepBy;
 use std::ops::Index;
 use std::slice::SliceIndex;
 use std::io::prelude::*;
@@ -321,15 +323,146 @@ pub fn parserftn(sql_string:&str) -> ()
                     
 
                 }
-                Statement::Query(..) =>
+                Statement::Query(select_statement) =>
                 {
                     println!("inside select query");
-                    
+                    let meow = *select_statement.body;
+                    match meow 
+                    {
+                        SetExpr::Select(Select ) =>
+                        {
+                            
+                            let Select_Statement = *Select.clone() ; 
+                            println!("{}",Select_Statement.projection.len());
+                            let mut column_table = Vec::new();
+                            for i in Select_Statement.projection
+                            {
+                                println!("{}",i.to_string());
+                                column_table.push(i.to_string());
+                            }
+                            let tablefactor = Select_Statement.from[0].relation.clone();
+                            match & tablefactor
+                            {
+                                sqlparser::ast::TableFactor::Table { name, alias, args, with_hints } =>
+                                {
+                                        let table_name = name.0[0].value.clone();
+                                        let mut boolvar = false ;
+                                        let mut boolvar2 = false ; 
+                                        let mut contents1 = String::new();
+                                        let mut file = File::open("current.txt");
+                                        match &mut file 
+                                        {
+                                            Ok(file_unwrapped) =>
+                                            {
+                                                match file_unwrapped.read_to_string(&mut contents1)
+                                                {
+                                                    Ok(_) => 
+                                                    {
+                                                        if contents1 == String::from("DEFAULT"){
+                                                            println!("No Database Selected ");
+                                                        }
+                                                        else  {
+                                                            let mut fileread = File::open("person.json");
+                                                            match &mut fileread {
+                                                                Ok(file) =>
+                                                                {
+                                                                    let mut contents = String::new();
+                                                                    file.read_to_string(&mut contents).unwrap();
+                                                                    let read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
+                                                                     for i in read_database_array.array.iter()
+                                                                     { 
+                                                                        if i.name == contents1 
+                                                                        {
+                                                                            boolvar = true ; 
+                                                                            println!("{}",i.name);
+                                                                            println!("{}",contents1);
+                                                                            for j in i.tables.clone()
+                                                                            {
+                                                                                if j == table_name {
+                                                                                    boolvar2 = true ; 
+                                                                                    let table_file_path = table_name.clone() + ".json"; 
+                                                                                    let mut fileread = File::open(table_file_path.clone());
+                                                                                    match &mut fileread {
+                                                                                        Ok(file) =>
+                                                                                        {
+                                                                                            let mut contents = String::new();
+                                                                                            // file.read_to_string(&mut contents).unwrap();
+                                                                                            file.read_to_string(&mut contents).unwrap();
+                                                                                            let mut read_table :Table = serde_json::from_str(&contents).unwrap();
+                                                                                            // read_table.printtable();
+                                                                                            read_table.selectftn(column_table,table_name);
+                                                                                        }
+                                                                                        Err(errorstatement) =>{println!("{}",errorstatement)}
+                                                                                    }
+
+                                                                                    break ; 
+
+                                                                                }
+                                                                            }
+                                                                            if boolvar2 == false
+                                                                            {
+                                                                                println!("Table does not exists in database ");
+                                                                            }
+                                                                            
+
+                                                                            break ; 
+                                                                        }
+                                                                     }
+                                                                    
+                                                                }
+                                                                Err(errormsg ) =>
+                                                                {
+                                                                    println!("Inside error");
+                                                                    println!("{}",errormsg);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    Err(errorstatement) =>
+                                                    {
+                                                        println!("{}",errorstatement);
+                                                    }
+                                                }
+                                            }
+                                            Err(errorstatement) =>
+                                            {
+                                                println!("{}",errorstatement);
+                                            }
+                                        }
+
+
+                                }
+                                (_) =>
+                                {
+
+                                }
+                            }
+
+                        }
+                        (_) =>
+                        {
+
+                        }
+                    }
+                    // println!("{}",*select_statement.body);
                     // finalcurrentable.printtable();
                     
                 }
+                
                 Statement::Insert { or:_, into:_, table_name, columns, overwrite:_, source, partitioned:_, after_columns:_, table:_, on:_, returning:_ }  =>
                 {
+                    let mut finalvector = Vec::new();
+                    match *source.body{
+                        SetExpr::Values(values) =>
+                        {
+                            println!("{}",values);
+                            for i in values.rows[0].clone()
+                            {
+                                finalvector.push(i.to_string());               
+                            }
+                        }
+                        (_) => {}
+                    }
                     let tablename = table_name.0[0].value.clone();
                     let mut boolvar = false ;
                     let mut contents1 = String::new();
@@ -359,6 +492,7 @@ pub fn parserftn(sql_string:&str) -> ()
                                                     {
                                                         // println!("Table do exists");
                                                         boolvar = true ; 
+                                                        break;
                                                     }
                                                  }
                                                 
@@ -384,11 +518,6 @@ pub fn parserftn(sql_string:&str) -> ()
                     }
                     if boolvar
                     {
-                        let mut finalvector = Vec::new();
-                        for iter in columns
-                        {
-                            finalvector.push(iter.value)
-                        }
                         let filepath = tablename +".json";
                         let mut fileread = File::open(filepath.clone());
                             match &mut fileread {
@@ -399,7 +528,6 @@ pub fn parserftn(sql_string:&str) -> ()
                                     file.read_to_string(&mut contents).unwrap();
                                     let mut read_table :Table = serde_json::from_str(&contents).unwrap();
                                     read_table.insert(finalvector);
-                                    read_table.printtable();
                                     let mut filewrite = File::create(filepath);
                                                              file.set_len(0);
                                                              match &mut filewrite 
@@ -664,7 +792,6 @@ pub fn parserftn(sql_string:&str) -> ()
                             let mut contents = String::new();
                             file.read_to_string(&mut contents).unwrap();
                             let mut read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
-                            read_database_array.printdatabase();
                             if!read_database_array.exists(db_name.0[0].value.clone())
                             {
                                 // match file.set_len(0)
