@@ -511,7 +511,12 @@ pub fn parserftn(sql_string:&str) -> ()
                                                                              {
                                                                                  Ok(_) =>
                                                                                  {
-                                                                                     println!("Successfull");
+                                                                                     let file_path = table_name + ".json";
+                                                                                     match fs::remove_file(file_path)
+                                                                                     {
+                                                                                      Ok(_) => {println!("Successfull");}
+                                                                                      Err(errorstatement) => {println!("{}",errorstatement);}
+                                                                                     }
                                                                                  }
                                                                                  Err(errormsg) =>
                                                                                  {   
