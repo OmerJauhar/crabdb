@@ -325,7 +325,7 @@ pub fn parserftn(sql_string:&str) -> ()
                 }
                 Statement::Query(select_statement) =>
                 {
-                    println!("inside select query");
+                    // println!("inside select query");
                     let meow = *select_statement.body;
                     match meow 
                     {
@@ -333,11 +333,11 @@ pub fn parserftn(sql_string:&str) -> ()
                         {
                             
                             let Select_Statement = *Select.clone() ; 
-                            println!("{}",Select_Statement.projection.len());
+                            // println!("{}",Select_Statement.projection.len());
                             let mut column_table = Vec::new();
                             for i in Select_Statement.projection
                             {
-                                println!("{}",i.to_string());
+                                // println!("{}",i.to_string());
                                 column_table.push(i.to_string());
                             }
                             let tablefactor = Select_Statement.from[0].relation.clone();
@@ -374,8 +374,8 @@ pub fn parserftn(sql_string:&str) -> ()
                                                                         if i.name == contents1 
                                                                         {
                                                                             boolvar = true ; 
-                                                                            println!("{}",i.name);
-                                                                            println!("{}",contents1);
+                                                                            // println!("{}",i.name);
+                                                                            // println!("{}",contents1);
                                                                             for j in i.tables.clone()
                                                                             {
                                                                                 if j == table_name {
@@ -791,7 +791,7 @@ pub fn parserftn(sql_string:&str) -> ()
                         {
                             let mut contents = String::new();
                             file.read_to_string(&mut contents).unwrap();
-                            let mut read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap();
+                            let mut read_database_array :DatabasesArray = serde_json::from_str(&contents).unwrap(); 
                             if!read_database_array.exists(db_name.0[0].value.clone())
                             {
                                 // match file.set_len(0)

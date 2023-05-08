@@ -59,15 +59,34 @@ impl Table {
     }
     pub fn selectftn(&mut self , columns: Vec<String> , table_name : String) -> ()
     {
+        println!("+----------------------------------++");
+        println!("| Table:  {:.15}                ||",table_name.clone());
+        let mut i = 0 ; 
+        while(i < columns.len())
+        {
+            print!("+----------------+");
+            i +=1 ;
+        }
+        println!();
+        for i in columns.clone()
+        {
+            if i == "*"
+            {
+                break ;
+            }
+            print!("{}|",format!("|{:^15.15} ",i));
+        }
+
         let mut boolvar = false ; 
-        println!("printing the values");
+        let mut meowvar = false;
+        let mut printcounter = 1 ;
+        // println!("printing the values");
         for (_key , value) in self.rows.clone()
         {
-            for (key1,value1) in value 
+            for i in columns.clone()
             {
-
                 
-                for i in columns.clone()
+                for (key1,value1) in value.clone()
                 {
                     if i == "*"
                     {
@@ -78,13 +97,35 @@ impl Table {
                     else
                     {
                         if i == key1{
-                            println!("{}",value1);
+                            if meowvar ==false
+                            {
+                                println!();
+                                println!("+----------------+");
+                                meowvar = true ; 
+                            }
+                            print!("{}|",format!("|{:^15.15} ",value1));
+                            // print!("+----------------+");
                         }
                     }
                 }
                 if boolvar
                 {
                     break ;
+                }
+                if printcounter < columns.len()
+                {
+                    printcounter +=1 ; 
+                }
+                else  {
+                    println!();
+                    let mut i = 0 ; 
+                    while(i < printcounter)
+                    {
+                        print!("+----------------+");
+                        i +=1 ;
+                    }
+                    println!();
+                    printcounter = 1 ;
                 }
                 
             }   
@@ -96,51 +137,44 @@ impl Table {
     }
     pub fn printtable (&mut self ,table_name : String)
     {
-        println!("+----------------------------------++");
-        println!("| Table:  {:.15}                ||",table_name.clone());
-        // println!("+----------------------------------++");
-
         for (_key , value) in self.rows.clone()
         {
-            for i  in value.iter()
+            for i  in value.clone()
             {
                     print!("+----------------+");
             }  
             println!();
-            for (key1,value1) in value.clone()
+            for (key1,value1) in value.iter()
             {
                     // print!("+----------+");
                     let printpadded =  format!("|{:^15.15} ",key1);
                     print!("{}|",printpadded);
                     // print!("+----------+");
             }   
+
             println!();
-            for i in value.iter()
+            for (key1,value1) in value.iter()
             {
-                    print!("+----------------+");
-            }  
-            break ;
-        }
-        println!("{:?}",self.rows);
-        for (_key , value) in self.rows.clone()
-        {
-            println!("{:?}",_key);
-            println!();
-            for (key1,value1) in value.clone()
-            {
-                    // print!("+----------+");
-                    let printpadded =  format!("|{:^15.15} ",value1);
-                    print!("{}|",printpadded);
-                    // print!("+----------+");
+                    print!("{}|",format!("|{:^15.15} ",value1));
             }   
             println!();
-            for i in value.iter()
+            for i in value.clone()
             {
                     print!("+----------------+");
             }  
-            break ;
+            println!();
         }
-
+        
+        // for (_key , value) in self.rows.clone()
+        // {
+        //     println!();
+        //     for (key1,value1) in value.iter()
+        //     {
+        //             print!("{}|",format!("|{:^15.15} ",value1));
+        //     }   
+        //     println!();
+        // }
+        
     }
 
         
