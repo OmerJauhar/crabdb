@@ -26,7 +26,7 @@ fn main() {
                 }
                 _ =>
                 {
-                    let helpstring = "carbdb help";
+                    let helpstring = "cargo run help";
                     println!("Error! use \"{}\".",helpstring);
                 }
             }
