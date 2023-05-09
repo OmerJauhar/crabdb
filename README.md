@@ -56,7 +56,7 @@ Table <==> Collection
 Tuple/row <==> Document   
 Column <==> Field   
 ```
-
+* Implement Primary and Foreign key concept
 * Remove warning from current code
 * Implement error handling with miette
 
