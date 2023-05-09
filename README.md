@@ -1,5 +1,7 @@
 # crabdb
-
+##prerequisites
+You must have rust installed.   
+[rust installation](https://www.rust-lang.org/tools/install)
 ## Installation
 Clone using 
 ```bash
@@ -8,6 +10,10 @@ Clone using
 cd into dir 
 ```bash 
 cd crabdb
+```
+build using 
+```bash 
+cargo build
 ```
 run using 
 ```bash 
