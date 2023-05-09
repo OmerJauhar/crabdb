@@ -29,7 +29,17 @@ MODE
 ************ CRABDB ***************
 ```
 
-
+## Working Commands 
+``` bash 
+create database [database name] 
+use [database name]
+show databases 
+show tables 
+create table commands  
+insert table commands 
+drop table commands 
+Select commands 
+```
 ## TODO
 * Implement Delete and update queries
 * Implement Disk Management for “sql mode”
@@ -43,20 +53,7 @@ Column <==> Field
 
 * Remove warning from current code
 * Implement error handling with miette
-## Working Commands 
-``` bash 
-create database [database name] 
-use [database name]
-show databases 
-show tables 
-create table commands  
-insert table commands 
-drop table commands 
-Select commands 
-```
-## Resources 
-* [sqlparser](https://crates.io/crates/sql-parser)
-* [rustyline](https://github.com/kkawakam/rustyline)
+
 ## Contributing
 
 Contributions are always welcome!
@@ -73,7 +70,9 @@ Contributions are always welcome!
 7. Enjoy contributing to the project!
 
 ```
-
+## Resources 
+* [sqlparser](https://crates.io/crates/sql-parser)
+* [rustyline](https://github.com/kkawakam/rustyline)
 
 ## License
 
