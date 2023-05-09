@@ -58,7 +58,7 @@ Column <==> Field
 
 Contributions are always welcome!
 
-## Contribution Rules
+### Contribution Rules
 
 ```bash 
 1. Fork the repository and create a new branch for your contribution.
